@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Repaso por materia</title>
+<style>
+:root {
+  --bg:#f3f5f8; --card:#fff; --text:#101828; --muted:#5a6678; --line:#d9e0ea;
+  --primary:#2563eb; --ok:#12824b; --bad:#be123c; --soft:#fafbfc;
+}
+* { box-sizing:border-box; }
+html,body { margin:0; padding:0; background:var(--bg); color:var(--text); font-family:Arial,Helvetica,sans-serif; }
+body { min-height:100vh; }
+button,input { font:inherit; }
+.appbar { position:sticky; top:0; z-index:20; display:flex; gap:12px; align-items:center; padding:10px 14px; background:rgba(255,255,255,.96); backdrop-filter:blur(8px); border-bottom:1px solid var(--line); }
+.brand { flex:1; min-width:0; }
+.brand h1 { margin:0; font-size:22px; line-height:1.05; }
+.brand p { margin:4px 0 0; font-size:12px; color:var(--muted); }
+.topbtn { border:1px solid var(--line); background:#fff; border-radius:12px; padding:9px 13px; font-weight:800; cursor:pointer; }
+.layout { width:min(1140px,100%); margin:0 auto; padding:16px; }
+.home { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:12px; }
+.homeCard { background:#fff; border:1px solid var(--line); border-radius:14px; padding:14px; cursor:pointer; box-shadow:0 2px 12px rgba(0,0,0,.04); }
+.homeCard:hover { border-color:var(--primary); background:#f8fbff; }
+.homeCard b { display:block; font-size:16px; margin-bottom:6px; }
+.homeCard span { color:var(--muted); font-size:13px; }
+.menuPanel { position:fixed; inset:0; z-index:40; background:rgba(15,23,42,.45); display:none; }
+.menuPanel.open { display:block; }
+.menuBox { width:min(530px,94vw); max-height:92vh; overflow:auto; margin:20px auto; background:#fff; border-radius:18px; padding:16px; box-shadow:0 20px 60px rgba(0,0,0,.28); }
+.menuHeader { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px; }
+.menuHeader h2 { margin:0; font-size:22px; }
+.search { width:100%; margin:8px 0 12px; border:1px solid var(--line); border-radius:12px; padding:12px; }
+.subjectGrid { display:grid; grid-template-columns:1fr; gap:8px; }
+.subjectBtn { text-align:left; border:1px solid var(--line); background:#fff; border-radius:12px; padding:12px; cursor:pointer; }
+.subjectBtn:hover { border-color:var(--primary); background:#f8fbff; }
+.subjectBtn b { display:block; font-size:15px; }
+.subjectBtn span { font-size:12px; color:var(--muted); }
+.card { background:var(--card); border:1px solid var(--line); border-radius:15px; box-shadow:0 2px 12px rgba(15,23,42,.05); margin-bottom:14px; padding:16px; }
+.headerCard { display:flex; justify-content:space-between; gap:16px; align-items:flex-start; }
+.subjectTitle { margin:0 0 8px; font-size:25px; }
+.meta { color:var(--muted); font-size:14px; }
+.score { font-size:17px; font-weight:900; white-space:nowrap; }
+.progressTrack { margin-top:12px; height:8px; border-radius:999px; background:#e8edf5; overflow:hidden; }
+.progressBar { height:100%; width:0%; background:linear-gradient(90deg,var(--primary),#22c55e); transition:width .25s ease; }
+.sectionTitle { margin:0 0 12px; font-size:18px; font-weight:900; }
+.qid { margin-bottom:10px; color:#334155; font-weight:900; }
+.questionImgBlock img { display:block; max-width:100%; height:auto; border-radius:10px; }
+.questionImages, .explanationImages { display:flex; flex-wrap:wrap; gap:12px; margin-top:12px; align-items:flex-start; }
+.questionImages img, .explanationImages img { max-width:100%; height:auto; background:#fff; border:1px solid #eef2f7; border-radius:8px; }
+.optionsBox { border:1px solid var(--line); border-radius:12px; background:#fbfcfe; padding:10px; overflow:auto; max-height:56vh; }
+.option { display:grid; grid-template-columns:auto auto minmax(0,1fr); gap:10px; align-items:center; background:#fff; border:1px solid transparent; border-radius:12px; margin:8px 0; padding:10px; cursor:pointer; min-width:min-content; }
+.option:hover { border-color:#b7c7ee; background:#f8fbff; }
+.option input { width:18px; height:18px; }
+.letter { min-width:24px; font-size:18px; font-weight:900; }
+.optionMedia { overflow:auto; padding:2px; }
+.optionMedia img { display:block; max-width:min(100%,1200px); height:auto; border-radius:7px; }
+.option.correct { border-color:#22c55e; background:#ecfdf5; }
+.option.wrong { border-color:#ef4444; background:#fff1f2; }
+.explBox { min-height:120px; max-height:34vh; overflow:auto; border:1px solid var(--line); border-radius:12px; background:#fff; padding:14px; white-space:pre-wrap; line-height:1.48; }
+.actionBar { position:sticky; bottom:0; z-index:15; background:rgba(243,245,248,.96); backdrop-filter:blur(8px); border-top:1px solid var(--line); padding:12px 16px; }
+.actionInner { width:min(1140px,100%); margin:0 auto; display:flex; gap:10px; flex-wrap:wrap; }
+.btn { border:1px solid var(--line); background:#fff; border-radius:10px; padding:11px 16px; font-weight:900; cursor:pointer; }
+.btn.primary { background:var(--primary); border-color:var(--primary); color:#fff; }
+.btn:disabled { opacity:.55; cursor:not-allowed; }
+.toast { position:fixed; left:50%; bottom:80px; transform:translateX(-50%); z-index:60; display:none; max-width:min(92vw,560px); background:#111827; color:#fff; border-radius:14px; padding:12px 16px; box-shadow:0 15px 40px rgba(0,0,0,.28); white-space:pre-wrap; }
+.toast.show { display:block; }
+@media (max-width:700px) {
+  .appbar { padding:9px 10px; } .brand h1 { font-size:18px; } .brand p { font-size:11px; }
+  .layout { padding:10px; } .card { padding:12px; border-radius:12px; } .subjectTitle { font-size:20px; } .score { font-size:14px; }
+  .optionsBox { max-height:49vh; padding:8px; }
+  .option { grid-template-columns:auto auto minmax(260px,1fr); gap:8px; padding:8px; }
+  .optionMedia img { max-width:none; width:auto; }
+}
+</style>
+</head>
+<body>
+<header class="appbar">
+  <div class="brand"><h1>Repaso por materia</h1><p>Versión web generada desde el último script corregido · 48 materias · 508 preguntas</p></div>
+  <button id="menuBtn" class="topbtn">Menú</button>
+</header>
+
+<div id="menuPanel" class="menuPanel" aria-hidden="true">
+  <div class="menuBox">
+    <div class="menuHeader"><h2>Materias</h2><button id="closeMenuBtn" class="topbtn">Cerrar</button></div>
+    <input id="searchInput" class="search" placeholder="Buscar materia...">
+    <div id="subjectList" class="subjectGrid"></div>
+  </div>
+</div>
+
+<main class="layout">
+  <section id="home" class="home"></section>
+  <section id="quiz" style="display:none">
+    <div class="card headerCard">
+      <div>
+        <h2 id="subjectTitle" class="subjectTitle"></h2>
+        <div id="counter" class="meta"></div>
+        <div class="progressTrack"><div id="progressBar" class="progressBar"></div></div>
+      </div>
+      <div id="score" class="score">Aciertos: 0</div>
+    </div>
+    <div class="card">
+      <h3 class="sectionTitle">Enunciado</h3>
+      <div id="qid" class="qid"></div>
+      <div id="questionImageBlock" class="questionImgBlock"></div>
+      <div id="questionImages" class="questionImages"></div>
+    </div>
+    <div class="card">
+      <h3 class="sectionTitle">Opciones</h3>
+      <div id="optionsBox" class="optionsBox"></div>
+    </div>
+    <div class="card">
+      <h3 class="sectionTitle">Proceso / explicación</h3>
+      <div id="explanation" class="explBox">Responde para ver aquí el proceso o la explicación.</div>
+    </div>
+  </section>
+</main>
+
+<div class="actionBar"><div class="actionInner"><button id="answerBtn" class="btn primary" disabled>Responder</button><button id="nextBtn" class="btn" disabled>Siguiente</button><button id="restartBtn" class="btn" disabled>Reiniciar materia</button></div></div>
+<div id="toast" class="toast"></div>
+<script src="data_part_01.js"></script>
+<script src="data_part_02.js"></script>
+<script src="data_part_03.js"></script>
+<script src="data_part_04.js"></script>
+<script>
+const DATA = JSON.parse((window.__QUIZ_JSON_PARTS || []).join('').replace(/<\\\//g, '</'));
+let currentSubjectIndex = null;
+let questions = [];
+let current = 0;
+let score = 0;
+let answered = false;
+const $ = (id) => document.getElementById(id);
+const el = {
+  menuPanel:$('menuPanel'), subjectList:$('subjectList'), searchInput:$('searchInput'), home:$('home'), quiz:$('quiz'),
+  subjectTitle:$('subjectTitle'), counter:$('counter'), progressBar:$('progressBar'), score:$('score'), qid:$('qid'),
+  questionImageBlock:$('questionImageBlock'), questionImages:$('questionImages'), optionsBox:$('optionsBox'), explanation:$('explanation'),
+  answerBtn:$('answerBtn'), nextBtn:$('nextBtn'), restartBtn:$('restartBtn'), toast:$('toast')
+};
+function esc(s) { return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function showToast(msg) { el.toast.textContent = msg; el.toast.classList.add('show'); clearTimeout(showToast.t); showToast.t=setTimeout(()=>el.toast.classList.remove('show'), 2400); }
+function openMenu() { el.menuPanel.classList.add('open'); el.menuPanel.setAttribute('aria-hidden','false'); el.searchInput.focus(); }
+function closeMenu() { el.menuPanel.classList.remove('open'); el.menuPanel.setAttribute('aria-hidden','true'); }
+$('menuBtn').onclick=openMenu; $('closeMenuBtn').onclick=closeMenu; el.menuPanel.addEventListener('click', e=>{ if(e.target===el.menuPanel) closeMenu(); });
+function renderSubjectList(filter='') {
+  const f = filter.trim().toLowerCase();
+  const arr = DATA.subjects.map((s,i)=>({s,i})).filter(x => x.s.title.toLowerCase().includes(f));
+  el.subjectList.innerHTML = arr.map(x => `<button class="subjectBtn" data-i="${x.i}"><b>${String(x.i+1).padStart(2,'0')}. ${esc(x.s.title)}</b><span>${x.s.count} preguntas</span></button>`).join('');
+  el.subjectList.querySelectorAll('button').forEach(btn => btn.onclick = () => startSubject(Number(btn.dataset.i)));
+}
+function renderHome() {
+  el.home.innerHTML = DATA.subjects.map((s,i) => `<div class="homeCard" data-i="${i}"><b>${String(i+1).padStart(2,'0')}. ${esc(s.title)}</b><span>${s.count} preguntas</span></div>`).join('');
+  el.home.querySelectorAll('.homeCard').forEach(c => c.onclick = () => startSubject(Number(c.dataset.i)));
+}
+function startSubject(i) {
+  currentSubjectIndex = i;
+  questions = DATA.subjects[i].questions.slice();
+  current = 0; score = 0; answered = false;
+  el.home.style.display='none'; el.quiz.style.display='block';
+  el.restartBtn.disabled=false; closeMenu(); loadQuestion(); window.scrollTo({top:0, behavior:'smooth'});
+}
+function loadQuestion() {
+  const subj = DATA.subjects[currentSubjectIndex];
+  const q = questions[current];
+  answered = false;
+  el.subjectTitle.textContent = subj.title;
+  el.counter.textContent = `Pregunta ${current+1} de ${questions.length}`;
+  el.score.textContent = `Aciertos: ${score}`;
+  el.progressBar.style.width = `${(current/questions.length)*100}%`;
+  el.qid.textContent = `ID: ${q.id}`;
+  el.questionImageBlock.innerHTML = q.questionImage ? `<img src="${q.questionImage}" alt="enunciado">` : `<div>${esc(q.questionText)}</div>`;
+  el.questionImages.innerHTML = (q.questionImages||[]).map(src => `<img src="${src}" alt="imagen del enunciado">`).join('');
+  renderOptions(q);
+  el.explanation.textContent = 'Responde para ver aquí el proceso o la explicación.';
+  el.answerBtn.disabled=false; el.nextBtn.disabled=true;
+}
+function renderOptions(q) {
+  const type = q.multi ? 'checkbox' : 'radio';
+  el.optionsBox.innerHTML = q.options.map(opt => `<label class="option" data-letter="${opt.letter}"><input type="${type}" name="answer" value="${opt.letter}"><span class="letter">${opt.letter})</span><div class="optionMedia">${opt.images.map(src => `<img src="${src}" alt="opción ${opt.letter}">`).join('')}</div></label>`).join('');
+}
+function getSelected() { return Array.from(el.optionsBox.querySelectorAll('input:checked')).map(x => x.value).sort(); }
+function answerNorm(ans) { return Array.isArray(ans) ? ans.slice().sort() : [ans]; }
+function doAnswer() {
+  if (answered) return;
+  const q = questions[current];
+  const sel = getSelected();
+  if (!sel.length) { showToast('Selecciona una opción antes de responder.'); return; }
+  const correct = answerNorm(q.answer).filter(Boolean).sort();
+  const ok = sel.length === correct.length && sel.every((v,i)=>v===correct[i]);
+  answered = true;
+  if (ok) score++;
+  el.score.textContent = `Aciertos: ${score}`;
+  el.progressBar.style.width = `${((current+1)/questions.length)*100}%`;
+  el.optionsBox.querySelectorAll('.option').forEach(row => {
+    const l = row.dataset.letter;
+    if (correct.includes(l)) row.classList.add('correct');
+    if (sel.includes(l) && !correct.includes(l)) row.classList.add('wrong');
+    row.querySelector('input').disabled = true;
+  });
+  const msg = ok ? '✅ Correcto.' : `❌ Incorrecto.
+Tu respuesta: ${sel.join(', ')}
+Correcta: ${correct.join(', ')}`;
+  el.explanation.innerHTML = `<div>${esc(msg + (q.explanation ? '\n\n' + q.explanation : ''))}</div>` + ((q.explanationImages||[]).length ? `<div class="explanationImages">${q.explanationImages.map(src => `<img src="${src}" alt="explicación">`).join('')}</div>` : '');
+  el.answerBtn.disabled=true; el.nextBtn.disabled=false; showToast(ok ? 'Correcto' : 'Incorrecto');
+}
+function nextQuestion() {
+  if (current < questions.length - 1) { current++; loadQuestion(); window.scrollTo({top:0, behavior:'smooth'}); }
+  else { el.answerBtn.disabled=true; el.nextBtn.disabled=true; showToast(`Materia finalizada. Aciertos: ${score} de ${questions.length}`); }
+}
+function restartSubject() { if (currentSubjectIndex !== null) startSubject(currentSubjectIndex); }
+el.answerBtn.onclick = doAnswer; el.nextBtn.onclick = nextQuestion; el.restartBtn.onclick = restartSubject; el.searchInput.addEventListener('input', e => renderSubjectList(e.target.value));
+renderHome(); renderSubjectList();
+</script>
+</body>
+</html>
